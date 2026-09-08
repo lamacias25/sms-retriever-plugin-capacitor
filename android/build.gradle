@@ -1,7 +1,7 @@
 apply plugin: 'com.android.library'
 
 android {
-    namespace "com.tuempresa.smsretriever" // Reemplaza por el namespace real de tu plugin
+    namespace "com.mavidev.smsretriever"
     compileSdkVersion project.hasProperty('compileSdkVersion') ? project.compileSdkVersion : 34
     
     defaultConfig {
@@ -17,8 +17,8 @@ android {
     }
     
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_21
-        targetCompatibility JavaVersion.VERSION_21
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
 }
 
@@ -29,12 +29,15 @@ repositories {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation "com.getcapacitor:capacitor-android:$capacitorAndroidVersion"
     
-    // La dependencia DEBE estar dentro del bloque dependencies:
-    implementation 'com.google.android.gms:play-services-auth:21.2.0' // Se recomienda actualizar la versión 16.0.0 a una reciente
+    // Vinculación nativa a la librería core de Capacitor en Android
+    implementation project(':capacitor-android')
     
-    testImplementation "junit:junit:$junitVersion"
-    androidTestImplementation "androidx.test.ext:junit:$androidxJunitVersion"
-    androidTestImplementation "androidx.test.espresso:espresso-core:$androidxEspressoCoreVersion"
+    // Servicios de Google Play para SMS Retriever API
+    implementation 'com.google.android.gms:play-services-auth:21.2.0'
+    implementation 'com.google.android.gms:play-services-auth-api-phone:18.1.0'
+
+    testImplementation "junit:junit:4.13.2"
+    androidTestImplementation "androidx.test.ext:junit:1.1.5"
+    androidTestImplementation "androidx.test.espresso:espresso-core:3.5.1"
 }

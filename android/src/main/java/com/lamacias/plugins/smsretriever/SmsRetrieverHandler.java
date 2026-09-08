@@ -19,6 +19,8 @@ public class SmsRetrieverHandler {
 
     private Activity activity;
     private static String TAG = SmsRetrieverHandler.class.getSimpleName();
+    protected OtpReceivedInterface onOtpReceived;
+    private boolean isReceiverRegistered = false;
 
     public SmsRetrieverHandler(Activity activity) {
         TAG = this.getClass().getSimpleName();
@@ -29,35 +31,33 @@ public class SmsRetrieverHandler {
         return mSmsBroadcastReceiver;
     }
 
+    public void setOtpReceivedCallback(OtpReceivedInterface callback) {
+        this.onOtpReceived = callback;
+    }
 
-    void startBroadcastReceiver() {
+    public void startBroadcastReceiver() {
+        if (isReceiverRegistered) return;
+
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(SmsRetriever.SMS_RETRIEVED_ACTION);
-    
+
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
             activity.registerReceiver(mSmsBroadcastReceiver, intentFilter, Context.RECEIVER_EXPORTED);
         } else {
             activity.registerReceiver(mSmsBroadcastReceiver, intentFilter);
         }
+        isReceiverRegistered = true;
     }
-    
 
-   /*  void startBroadcastReceiver() {
-        IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(SmsRetriever.SMS_RETRIEVED_ACTION);
-       // this.activity.registerReceiver(mSmsBroadcastReceiver, intentFilter);/
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
-            this.registerReceiver(mSmsBroadcastReceiver, intentFilter, Context.RECEIVER_EXPORTED);
-        } else {
-            this.registerReceiver(mSmsBroadcastReceiver, intentFilter);
+    public void stopBroadcastReceiver() {
+        if (isReceiverRegistered && activity != null) {
+            try {
+                activity.unregisterReceiver(mSmsBroadcastReceiver);
+            } catch (Exception e) {
+                Log.e(TAG, "Error al desregistrar receiver: " + e.getMessage());
+            }
+            isReceiverRegistered = false;
         }
-        
-    }*/
-
-    protected OtpReceivedInterface<String> onOtpReceived;
-
-    public void setOtpReceivedCallback(OtpReceivedInterface<String> callback) {
-        onOtpReceived = callback;
     }
 
     private BroadcastReceiver mSmsBroadcastReceiver = new BroadcastReceiver() {
@@ -78,31 +78,32 @@ public class SmsRetrieverHandler {
                 }
 
                 switch (mStatus.getStatusCode()) {
-                case CommonStatusCodes.SUCCESS:
-                    // Get SMS message contents'
-                    String message = (String) extras.get(SmsRetriever.EXTRA_SMS_MESSAGE);
-                    if (message != null) {
-                        Log.d(TAG, "SMS message: " + message);
-                        if (onOtpReceived != null) {
-                            try {
-                                String otpMessage = message.replace("<#> Your otp code is: ", "");
-                                String[] lines = otpMessage.split("\n");
-                                String otp = lines.length > 0 ? lines[0] : "";
-                                onOtpReceived.onOtpReceived(otp);
-                            } catch (Exception e) {
-                                Log.e(TAG, "Error extracting OTP: " + e.getMessage());
-                                onOtpReceived.onOtpReceived(""); // o manejar el error de otra forma
+                    case CommonStatusCodes.SUCCESS:
+                        String message = (String) extras.get(SmsRetriever.EXTRA_SMS_MESSAGE);
+                        if (message != null) {
+                            Log.d(TAG, "SMS message: " + message);
+                            if (onOtpReceived != null) {
+                                try {
+                                    String otpMessage = message.replace("<#> Your otp code is: ", "");
+                                    String[] lines = otpMessage.split("\n");
+                                    String otp = lines.length > 0 ? lines[0] : "";
+                                    onOtpReceived.onOtpReceived(otp);
+                                } catch (Exception e) {
+                                    Log.e(TAG, "Error extracting OTP: " + e.getMessage());
+                                    onOtpReceived.onOtpReceived("");
+                                }
                             }
                         }
-                    }
-                    break;
-                case CommonStatusCodes.TIMEOUT:
-                    // Waiting for SMS timed out (5 minutes)
-                    Log.d(TAG, "onReceive: failure");
-                    if (onOtpReceived != null) {
-                        onOtpReceived.onOtpTimeout();
-                    }
-                    break;
+                        stopBroadcastReceiver();
+                        break;
+
+                    case CommonStatusCodes.TIMEOUT:
+                        Log.d(TAG, "onReceive: failure / timeout");
+                        if (onOtpReceived != null) {
+                            onOtpReceived.onOtpTimeout();
+                        }
+                        stopBroadcastReceiver();
+                        break;
                 }
             }
         }

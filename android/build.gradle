@@ -1,5 +1,40 @@
+apply plugin: 'com.android.library'
+
+android {
+    namespace "com.tuempresa.smsretriever" // Reemplaza por el namespace real de tu plugin
+    compileSdkVersion project.hasProperty('compileSdkVersion') ? project.compileSdkVersion : 34
+    
+    defaultConfig {
+        minSdkVersion project.hasProperty('minSdkVersion') ? project.minSdkVersion : 22
+        targetSdkVersion project.hasProperty('targetSdkVersion') ? project.targetSdkVersion : 34
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+        }
+    }
+    
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_21
+        targetCompatibility JavaVersion.VERSION_21
+    }
+}
+
+repositories {
+    google()
+    mavenCentral()
+}
+
 dependencies {
-    // SMS Retriever API from Google
-    implementation 'com.google.android.gms:play-services-auth:16.0.0'
-    implementation 'com.google.android.gms:play-services-auth-api-phone:18.0.1'
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation "com.getcapacitor:capacitor-android:$capacitorAndroidVersion"
+    
+    // La dependencia DEBE estar dentro del bloque dependencies:
+    implementation 'com.google.android.gms:play-services-auth:21.2.0' // Se recomienda actualizar la versión 16.0.0 a una reciente
+    
+    testImplementation "junit:junit:$junitVersion"
+    androidTestImplementation "androidx.test.ext:junit:$androidxJunitVersion"
+    androidTestImplementation "androidx.test.espresso:espresso-core:$androidxEspressoCoreVersion"
 }

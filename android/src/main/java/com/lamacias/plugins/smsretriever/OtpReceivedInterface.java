@@ -1,4 +1,4 @@
-package com.outsystems.smsretriever;
+package com.lamacias.plugins.smsretriever;
 
 /**
  * Created on : Oct 10, 2019 Author : Paulo Camilo

@@ -1,4 +1,4 @@
-package com.outsystems.smsretriever;
+package com.lamacias.plugins.smsretriever;
 
 import android.app.Activity;
 import android.content.BroadcastReceiver;

@@ -1,7 +1,8 @@
 apply plugin: 'com.android.library'
 
 android {
-    namespace "com.mavidev.smsretriever"
+    // Alinear el namespace con el paquete de los archivos Java
+    namespace "com.lamacias.plugins.smsretriever"
     compileSdkVersion project.hasProperty('compileSdkVersion') ? project.compileSdkVersion : 34
     
     defaultConfig {
@@ -32,6 +33,9 @@ dependencies {
     
     // Vinculación nativa a la librería core de Capacitor en Android
     implementation project(':capacitor-android')
+    
+    // Dependencia requerida para resolver AppCompatActivity
+    implementation 'androidx.appcompat:appcompat:1.6.1'
     
     // Servicios de Google Play para SMS Retriever API
     implementation 'com.google.android.gms:play-services-auth:21.2.0'

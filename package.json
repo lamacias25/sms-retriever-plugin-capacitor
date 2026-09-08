@@ -1,0 +1,23 @@
+{
+  "name": "sms-retriever-plugin-capacitor",
+  "version": "2.0.0",
+  "description": "Capacitor SMS Retriever Plugin for Android",
+  "main": "dist/plugin.cjs.js",
+  "module": "dist/esm/index.js",
+  "types": "dist/esm/index.d.ts",
+  "scripts": {
+    "build": "tsc"
+  },
+  "capacitor": {
+    "android": {
+      "src": "android"
+    }
+  },
+  "peerDependencies": {
+    "@capacitor/core": "^6.0.0"
+  },
+  "devDependencies": {
+    "@capacitor/core": "^6.0.0",
+    "typescript": "^5.9.3"
+  }
+}
